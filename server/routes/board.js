@@ -32,50 +32,6 @@ router.get('/', (req, res) => {
         });
 });
 
-router.get('/:username/:listType/:id', (req, res) => {
-    let listType = req.params.listType;
-    let id = req.params.id;
-    let username = req.params.username;
-
-    // CHECK LIST TYPE VALIDITY
-    if (listType !== 'old' && listType !== 'new') {
-        return res.status(400).json({
-            error: "INVALID LISTTYPE",
-            code: 1
-        });
-    }
-
-    // CHECK MEMO ID VALIDITY
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-        return res.status(400).json({
-            error: "INVALID ID",
-            code: 2
-        });
-    }
-
-    let objId = new mongoose.Types.ObjectId(req.params.id);
-
-    if (listType === 'new') {
-        // GET NEWER MEMO
-        Article.find({$and: [{writer: username}, {_id: {$gt: objId}}]})
-            .sort({_id: -1})
-            .limit(6)
-            .exec((err, articles) => {
-                if (err) throw err;
-                return res.json(articles);
-            });
-    } else {
-        // GET OLDER MEMO
-        Article.find({$and: [{writer: username}, {_id: {$lt: objId}}]})
-            .sort({_id: -1})
-            .limit(6)
-            .exec((err, articles) => {
-                if (err) throw err;
-                return res.json(articles);
-            });
-    }
-});
-
 
 /*
  /api/article/:id
